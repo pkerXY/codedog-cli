@@ -4,7 +4,9 @@
       "Bash(Get-ChildItem *)",
       "Bash(cargo build *)",
       "Bash(cargo test *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(./target/release/dog.exe *)"
     ]
   }
 }

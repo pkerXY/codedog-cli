@@ -8,6 +8,11 @@ pub fn handle_time(args: &TimeArgs) -> anyhow::Result<()> {
     match &args.input {
         None => show_current_time(&args.timezone, &args.format),
         Some(input) => {
+            // 特殊处理 "now"
+            if input == "now" {
+                return show_current_time(&args.timezone, &args.format);
+            }
+            // 数字为时间戳
             if input.chars().all(|c| c.is_ascii_digit()) {
                 convert_timestamp(input, &args.timezone, &args.format)
             } else {

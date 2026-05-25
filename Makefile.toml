@@ -1,0 +1,54 @@
+[tasks.build]
+description = "构建发布版本"
+command = "cargo"
+args = ["build", "--release"]
+
+[test]
+description = "运行所有测试"
+command = "cargo"
+args = ["test", "--all"]
+
+[tasks.fmt]
+description = "格式化代码"
+command = "cargo"
+args = ["fmt", "--all"]
+
+[tasks.clippy]
+description = "运行 clippy 检查"
+command = "cargo"
+args = ["clippy", "--all-targets", "--all-features", "--", "-D", "warnings"]
+
+[tasks.ci]
+description = "运行 CI 检查"
+dependencies = ["fmt-check", "clippy", "test", "build"]
+
+[tasks.fmt-check]
+description = "检查代码格式"
+command = "cargo"
+args = ["fmt", "--all", "--", "--check"]
+
+[tasks.install]
+description = "安装到本地"
+command = "cargo"
+args = ["install", "--path", "."]
+
+[tasks.package-linux]
+description = "打包 Linux 版本"
+script = [
+    "mkdir -p dist",
+    "cp target/release/dog dist/dog-linux-x86_64",
+    "tar -czvf dist/dog-linux-x86_64.tar.gz -C dist dog-linux-x86_64"
+]
+
+[tasks.package-windows]
+description = "打包 Windows 版本 (需要在 Windows 上运行)"
+script = [
+    "if not exist dist mkdir dist",
+    "copy target\\release\\dog.exe dist\\dog-windows-x86_64.exe",
+    "powershell Compress-Archive -Path dist\\dog-windows-x86_64.exe -DestinationPath dist\\dog-windows-x86_64.zip -Force"
+]
+
+[tasks.clean]
+description = "清理构建产物"
+command = "cargo"
+args = ["clean"]

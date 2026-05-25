@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem *)",
+      "Bash(cargo build *)",
+      "Bash(cargo test *)",
+      "Bash(git add *)"
+    ]
+  }
+}

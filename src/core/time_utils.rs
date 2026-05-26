@@ -1,8 +1,8 @@
 //! 时间工具模块
 
+use crate::cli::TimeArgs;
 use chrono::{DateTime, TimeZone, Utc};
 use chrono_tz::Tz;
-use crate::cli::TimeArgs;
 
 pub fn handle_time(args: &TimeArgs) -> anyhow::Result<()> {
     match &args.input {
@@ -23,7 +23,9 @@ pub fn handle_time(args: &TimeArgs) -> anyhow::Result<()> {
 }
 
 fn show_current_time(timezone: &str, format: &str) -> anyhow::Result<()> {
-    let tz: Tz = timezone.parse().map_err(|e: String| anyhow::anyhow!("{}", e))?;
+    let tz: Tz = timezone
+        .parse()
+        .map_err(|e: String| anyhow::anyhow!("{}", e))?;
     let now = Utc::now().with_timezone(&tz);
 
     let output = format_datetime(&now, format);
@@ -34,15 +36,19 @@ fn show_current_time(timezone: &str, format: &str) -> anyhow::Result<()> {
 
 fn convert_timestamp(timestamp: &str, timezone: &str, format: &str) -> anyhow::Result<()> {
     let ts: i64 = timestamp.parse()?;
-    let tz: Tz = timezone.parse().map_err(|e: String| anyhow::anyhow!("{}", e))?;
+    let tz: Tz = timezone
+        .parse()
+        .map_err(|e: String| anyhow::anyhow!("{}", e))?;
 
     let dt = if timestamp.len() > 10 {
         // 毫秒时间戳
-        Utc.timestamp_millis_opt(ts).single()
+        Utc.timestamp_millis_opt(ts)
+            .single()
             .ok_or_else(|| anyhow::anyhow!("无效的时间戳"))?
     } else {
         // 秒时间戳
-        Utc.timestamp_opt(ts, 0).single()
+        Utc.timestamp_opt(ts, 0)
+            .single()
             .ok_or_else(|| anyhow::anyhow!("无效的时间戳"))?
     };
 
@@ -54,7 +60,9 @@ fn convert_timestamp(timestamp: &str, timezone: &str, format: &str) -> anyhow::R
 }
 
 fn convert_date_string(date_str: &str, timezone: &str, _format: &str) -> anyhow::Result<()> {
-    let tz: Tz = timezone.parse().map_err(|e: String| anyhow::anyhow!("{}", e))?;
+    let tz: Tz = timezone
+        .parse()
+        .map_err(|e: String| anyhow::anyhow!("{}", e))?;
 
     // 尝试解析常见日期格式
     let dt = parse_date_string(date_str, tz)?;

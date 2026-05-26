@@ -1,10 +1,10 @@
 //! 编码转换模块
 
-use crate::cli::{EncodeArgs, DecodeArgs, HashArgs};
+use crate::cli::{DecodeArgs, EncodeArgs, HashArgs};
 
+use md5::Md5;
 use sha1::Sha1;
 use sha2::{Digest, Sha256, Sha512};
-use md5::Md5;
 
 pub fn encode(args: &EncodeArgs) -> anyhow::Result<()> {
     let input = crate::utils::input::read_input(&args.input)?;
@@ -93,7 +93,8 @@ fn url_decode(input: &str) -> anyhow::Result<String> {
 }
 
 fn unicode_encode(input: &str) -> String {
-    input.chars()
+    input
+        .chars()
         .map(|c| format!("\\u{:04x}", c as u32))
         .collect()
 }

@@ -102,7 +102,9 @@ impl App {
                 );
             }
             Module::Time => {
-                self.output = chrono::Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string();
+                self.output = chrono::Utc::now()
+                    .format("%Y-%m-%d %H:%M:%S UTC")
+                    .to_string();
             }
             Module::Hash => {
                 use sha2::{Digest, Sha256};
@@ -165,7 +167,9 @@ impl App {
         if self.editing && self.focus == Focus::Input {
             match key {
                 KeyCode::Char(c) => self.input.push(c),
-                KeyCode::Backspace => { self.input.pop(); }
+                KeyCode::Backspace => {
+                    self.input.pop();
+                }
                 _ => {}
             }
         }

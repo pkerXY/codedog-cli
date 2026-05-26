@@ -1,13 +1,13 @@
 //! TUI UI 渲染
 
+use super::app::{App, Focus, Module};
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style, Stylize},
     text::Line,
-    widgets::{Block, Borders, Paragraph, List, ListItem, Clear},
+    widgets::{Block, Borders, Clear, List, ListItem, Paragraph},
     Frame,
 };
-use super::app::{App, Focus, Module};
 
 pub fn render(f: &mut Frame, app: &App) {
     let area = f.size();
@@ -17,9 +17,9 @@ pub fn render(f: &mut Frame, app: &App) {
         .direction(Direction::Vertical)
         .margin(1)
         .constraints([
-            Constraint::Length(1),  // 标题栏
-            Constraint::Min(10),    // 主内容区
-            Constraint::Length(2),  // 状态栏
+            Constraint::Length(1), // 标题栏
+            Constraint::Min(10),   // 主内容区
+            Constraint::Length(2), // 状态栏
         ])
         .split(area);
 
@@ -76,17 +76,16 @@ fn render_menu(f: &mut Frame, app: &App, area: Rect) {
         })
         .collect();
 
-    let menu = List::new(items)
-        .block(
-            Block::default()
-                .title(" 功能菜单 ")
-                .borders(Borders::ALL)
-                .border_style(if app.focus == Focus::Menu {
-                    Style::default().fg(Color::Green)
-                } else {
-                    Style::default()
-                }),
-        );
+    let menu = List::new(items).block(
+        Block::default()
+            .title(" 功能菜单 ")
+            .borders(Borders::ALL)
+            .border_style(if app.focus == Focus::Menu {
+                Style::default().fg(Color::Green)
+            } else {
+                Style::default()
+            }),
+    );
 
     f.render_widget(menu, area);
 }
@@ -112,7 +111,10 @@ fn render_input(f: &mut Frame, app: &App, area: Rect) {
     // 操作提示
     let hints = Paragraph::new(" [e]编辑 [p]粘贴 [c]清空 [f]文件")
         .style(Style::default().fg(Color::DarkGray));
-    f.render_widget(hints, Rect::new(area.x, area.y + area.height, area.width, 1));
+    f.render_widget(
+        hints,
+        Rect::new(area.x, area.y + area.height, area.width, 1),
+    );
 }
 
 fn render_output(f: &mut Frame, app: &App, area: Rect) {
@@ -122,20 +124,22 @@ fn render_output(f: &mut Frame, app: &App, area: Rect) {
         Style::default()
     };
 
-    let output = Paragraph::new(app.output.as_str())
-        .block(
-            Block::default()
-                .title(format!(" 输出区域 [{}] ", app.format))
-                .borders(Borders::ALL)
-                .border_style(style),
-        );
+    let output = Paragraph::new(app.output.as_str()).block(
+        Block::default()
+            .title(format!(" 输出区域 [{}] ", app.format))
+            .borders(Borders::ALL)
+            .border_style(style),
+    );
 
     f.render_widget(output, area);
 
     // 操作提示
-    let hints = Paragraph::new(" [y]复制 [s]保存 [w]切换格式")
-        .style(Style::default().fg(Color::DarkGray));
-    f.render_widget(hints, Rect::new(area.x, area.y + area.height, area.width, 1));
+    let hints =
+        Paragraph::new(" [y]复制 [s]保存 [w]切换格式").style(Style::default().fg(Color::DarkGray));
+    f.render_widget(
+        hints,
+        Rect::new(area.x, area.y + area.height, area.width, 1),
+    );
 }
 
 fn render_status(f: &mut Frame, app: &App, area: Rect) {
@@ -143,8 +147,7 @@ fn render_status(f: &mut Frame, app: &App, area: Rect) {
         " [1-4]切换模块 [Tab]切换面板 [Enter]执行 [?]帮助{}",
         if app.editing { " [编辑中]" } else { "" }
     );
-    let status_bar = Paragraph::new(status)
-        .style(Style::default().fg(Color::DarkGray));
+    let status_bar = Paragraph::new(status).style(Style::default().fg(Color::DarkGray));
     f.render_widget(status_bar, area);
 }
 
@@ -175,13 +178,12 @@ fn render_help(f: &mut Frame) {
         .map(|&t| ListItem::new(Line::from(t)))
         .collect();
 
-    let help_widget = List::new(help)
-        .block(
-            Block::default()
-                .title(" 帮助 ")
-                .borders(Borders::ALL)
-                .style(Style::default().fg(Color::Yellow)),
-        );
+    let help_widget = List::new(help).block(
+        Block::default()
+            .title(" 帮助 ")
+            .borders(Borders::ALL)
+            .style(Style::default().fg(Color::Yellow)),
+    );
 
     f.render_widget(help_widget, popup_area);
 }

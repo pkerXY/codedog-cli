@@ -75,8 +75,8 @@ pub fn hash(args: &HashArgs) -> anyhow::Result<()> {
     };
 
     match source {
-        InputSource::File(_) => println!("文件 {}: {}", algo_name, result),
-        InputSource::Text(_) => println!("文本 {}: {}", algo_name, result),
+        InputSource::File => println!("文件 {}: {}", algo_name, result),
+        InputSource::Text => println!("文本 {}: {}", algo_name, result),
         InputSource::Stdin => println!("标准输入 {}: {}", algo_name, result),
     }
 

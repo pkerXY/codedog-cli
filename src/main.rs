@@ -15,7 +15,7 @@ use clap::{Parser, Subcommand};
 #[command(version)]
 struct Cli {
     #[command(subcommand)]
-    command: Commands,
+    command: Option<Commands>,
 }
 
 #[derive(Subcommand)]
@@ -31,20 +31,20 @@ enum Commands {
     Hash(cli::HashArgs),
     /// 时间工具
     Time(cli::TimeArgs),
-    /// 启动交互式 TUI 界面
-    Tui,
 }
 
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Format(args) => cli::handle_format(args)?,
-        Commands::Encode(args) => cli::handle_encode(args)?,
-        Commands::Decode(args) => cli::handle_decode(args)?,
-        Commands::Hash(args) => cli::handle_hash(args)?,
-        Commands::Time(args) => cli::handle_time(args)?,
-        Commands::Tui => tui::run()?,
+        None => tui::run()?,
+        Some(cmd) => match cmd {
+            Commands::Format(args) => cli::handle_format(args)?,
+            Commands::Encode(args) => cli::handle_encode(args)?,
+            Commands::Decode(args) => cli::handle_decode(args)?,
+            Commands::Hash(args) => cli::handle_hash(args)?,
+            Commands::Time(args) => cli::handle_time(args)?,
+        },
     }
 
     Ok(())

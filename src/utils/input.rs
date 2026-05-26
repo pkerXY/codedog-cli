@@ -3,6 +3,37 @@
 use std::io::{self, Read};
 use std::path::Path;
 
+/// 输入来源类型
+#[allow(dead_code)]
+pub enum InputSource {
+    /// 文件输入（包含文件路径）
+    File(String),
+    /// 文本输入
+    Text(String),
+    /// 标准输入
+    Stdin,
+}
+
+/// 判断输入来源类型（不读取内容）
+///
+/// 与 `read_input` 使用相同的判断逻辑：
+/// 1. 如果提供了输入参数且是有效文件路径，则为文件输入
+/// 2. 如果提供了输入参数但不是文件路径，则为文本输入
+/// 3. 如果没有提供输入参数，则为标准输入
+pub fn classify_input(input: &Option<String>) -> InputSource {
+    match input {
+        Some(content) => {
+            let path = Path::new(content);
+            if path.exists() && path.is_file() {
+                InputSource::File(content.clone())
+            } else {
+                InputSource::Text(content.clone())
+            }
+        }
+        None => InputSource::Stdin,
+    }
+}
+
 /// 从文件、文本或标准输入读取文本内容
 ///
 /// 优先级：

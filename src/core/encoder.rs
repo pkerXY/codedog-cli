@@ -2,6 +2,7 @@
 
 use crate::cli::{DecodeArgs, EncodeArgs, HashArgs};
 
+use crate::utils::input::{self, InputSource};
 use md5::Md5;
 use sha1::Sha1;
 use sha2::{Digest, Sha256, Sha512};
@@ -45,33 +46,40 @@ pub fn decode(args: &DecodeArgs) -> anyhow::Result<()> {
 }
 
 pub fn hash(args: &HashArgs) -> anyhow::Result<()> {
-    let input = crate::utils::input::read_input_bytes(&args.input)?;
+    let source = input::classify_input(&args.input);
+    let data = input::read_input_bytes(&args.input)?;
 
+    let algo_name = args.algorithm.to_uppercase();
     let result = match args.algorithm.to_lowercase().as_str() {
         "md5" => {
             let mut hasher = Md5::new();
-            hasher.update(&input);
+            hasher.update(&data);
             format!("{:x}", hasher.finalize())
         }
         "sha1" => {
             let mut hasher = Sha1::new();
-            hasher.update(&input);
+            hasher.update(&data);
             format!("{:x}", hasher.finalize())
         }
         "sha256" => {
             let mut hasher = Sha256::new();
-            hasher.update(&input);
+            hasher.update(&data);
             format!("{:x}", hasher.finalize())
         }
         "sha512" => {
             let mut hasher = Sha512::new();
-            hasher.update(&input);
+            hasher.update(&data);
             format!("{:x}", hasher.finalize())
         }
         _ => anyhow::bail!("不支持的哈希算法: {}", args.algorithm),
     };
 
-    println!("{}", result);
+    match source {
+        InputSource::File(_) => println!("文件 {}: {}", algo_name, result),
+        InputSource::Text(_) => println!("文本 {}: {}", algo_name, result),
+        InputSource::Stdin => println!("标准输入 {}: {}", algo_name, result),
+    }
+
     Ok(())
 }
 

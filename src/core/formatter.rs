@@ -1,9 +1,22 @@
 //! 数据格式化模块
 
 use crate::cli::FormatArgs;
+use std::path::Path;
 
 pub fn format(args: &FormatArgs) -> anyhow::Result<()> {
-    let input = crate::utils::input::read_input(&args.input)?;
+    // 判断输入是否为文件路径
+    let is_file_input = args
+        .input
+        .as_ref()
+        .map(|p| Path::new(p).exists() && Path::new(p).is_file())
+        .unwrap_or(false);
+
+    // 读取输入内容
+    let input = if is_file_input {
+        crate::utils::input::read_file_content(args.input.as_ref().unwrap())?
+    } else {
+        crate::utils::input::read_input(&args.input)?
+    };
 
     let output = match args.format.as_str() {
         "json" => format_as_json(&input, args.compact)?,
@@ -12,7 +25,19 @@ pub fn format(args: &FormatArgs) -> anyhow::Result<()> {
         _ => anyhow::bail!("不支持的格式: {}", args.format),
     };
 
-    if let Some(ref output_path) = args.output {
+    // 处理输出
+    if args.in_place {
+        // 就地修改文件
+        if let Some(ref input_path) = args.input {
+            if is_file_input {
+                std::fs::write(input_path, &output)?;
+            } else {
+                anyhow::bail!("-i 参数只能用于文件输入");
+            }
+        } else {
+            anyhow::bail!("-i 参数需要指定文件路径");
+        }
+    } else if let Some(ref output_path) = args.output {
         std::fs::write(output_path, &output)?;
     } else {
         println!("{}", output);

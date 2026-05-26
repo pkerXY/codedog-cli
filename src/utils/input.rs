@@ -30,6 +30,14 @@ pub fn read_input(input: &Option<String>) -> anyhow::Result<String> {
     }
 }
 
+/// 从文件路径读取内容（仅支持文件）
+///
+/// 用于需要区分文件和文本的场景，如 `-i` 就地修改
+pub fn read_file_content(path: &str) -> anyhow::Result<String> {
+    let content = std::fs::read_to_string(path)?;
+    Ok(content)
+}
+
 /// 从文件、文本或标准输入读取二进制内容
 ///
 /// 优先级：
@@ -92,6 +100,14 @@ mod tests {
         // 空字符串文本
         let result = read_input(&Some("".to_string())).unwrap();
         assert_eq!(result, "");
+    }
+
+    #[test]
+    fn test_read_input_json_text() {
+        // JSON 文本，直接返回
+        let json = r#"{"name":"dog"}"#.to_string();
+        let result = read_input(&Some(json.clone())).unwrap();
+        assert_eq!(result, json);
     }
 
     #[test]

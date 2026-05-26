@@ -46,25 +46,36 @@ fn run_app<B: ratatui::backend::Backend>(
         terminal.draw(|f| ui::render(f, app))?;
 
         if let Event::Key(key) = event::read()? {
-            match (key.modifiers, key.code) {
-                (KeyModifiers::CONTROL, KeyCode::Char('c')) | (_, KeyCode::Char('q')) => {
-                    return Ok(());
-                }
-                (KeyModifiers::NONE, KeyCode::Char('1')) => app.select_module(0),
-                (KeyModifiers::NONE, KeyCode::Char('2')) => app.select_module(1),
-                (KeyModifiers::NONE, KeyCode::Char('3')) => app.select_module(2),
-                (KeyModifiers::NONE, KeyCode::Char('4')) => app.select_module(3),
-                (KeyModifiers::NONE, KeyCode::Tab) => app.toggle_focus(),
-                (KeyModifiers::NONE, KeyCode::Enter) => app.execute(),
-                (KeyModifiers::NONE, KeyCode::Char('e')) => app.edit_mode(),
-                (KeyModifiers::NONE, KeyCode::Char('p')) => app.paste(),
-                (KeyModifiers::NONE, KeyCode::Char('f')) => app.load_file()?,
-                (KeyModifiers::NONE, KeyCode::Char('y')) => app.copy_output()?,
-                (KeyModifiers::NONE, KeyCode::Char('s')) => app.save_output()?,
-                (KeyModifiers::NONE, KeyCode::Char('w')) => app.toggle_format(),
-                (KeyModifiers::NONE, KeyCode::Char('?')) => app.show_help(),
-                (KeyModifiers::NONE, KeyCode::Esc) => app.cancel(),
-                _ => app.handle_input(key.code)?,
+            match app.selected_module {
+                // 菜单模式
+                None => match (key.modifiers, key.code) {
+                    (KeyModifiers::CONTROL, KeyCode::Char('c')) | (_, KeyCode::Char('q')) => {
+                        return Ok(());
+                    }
+                    (_, KeyCode::Up) => app.menu_up(),
+                    (_, KeyCode::Down) => app.menu_down(),
+                    (_, KeyCode::Enter) => app.select(),
+                    _ => {}
+                },
+                // 模块模式
+                Some(_) => match (key.modifiers, key.code) {
+                    (KeyModifiers::CONTROL, KeyCode::Char('c')) | (_, KeyCode::Char('q')) => {
+                        return Ok(());
+                    }
+                    (_, KeyCode::Esc) => app.back(),
+                    (_, KeyCode::Tab) => app.toggle_panel_focus(),
+                    (_, KeyCode::Enter) => {
+                        if app.editing {
+                            app.editing = false;
+                        } else {
+                            app.execute();
+                        }
+                    }
+                    (_, KeyCode::Char('e')) => app.toggle_edit(),
+                    (_, KeyCode::Char('p')) => app.paste(),
+                    (_, KeyCode::Char('y')) => app.copy_output()?,
+                    _ => app.handle_input(key.code),
+                },
             }
         }
     }

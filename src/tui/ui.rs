@@ -225,7 +225,9 @@ fn render_time_panel(f: &mut Frame, _app: &App, area: Rect) {
         .split(area);
 
     // 当前时间显示
-    let now = chrono::Utc::now().format("%Y-%m-%d %H:%M:%S UTC").to_string();
+    let now = chrono::Utc::now()
+        .format("%Y-%m-%d %H:%M:%S UTC")
+        .to_string();
     let time_lines = vec![
         Line::from(""),
         Line::from(format!("  {}", now)),

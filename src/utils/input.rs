@@ -1,6 +1,6 @@
 //! 输入处理模块
 
-use std::io::{self, Read};
+use std::io::{self, IsTerminal, Read};
 use std::path::Path;
 
 /// 输入来源类型
@@ -53,6 +53,15 @@ pub fn read_input(input: &Option<String>) -> anyhow::Result<String> {
             }
         }
         None => {
+            if io::stdin().is_terminal() {
+                anyhow::bail!(
+                    "没有提供输入内容。请提供文件路径或文本作为参数，或通过管道传入数据。\n\
+                     示例:\n\
+                     \x20 dog format data.json       # 格式化文件\n\
+                     \x20 dog format '{{\"key\":\"val\"}}'  # 格式化文本\n\
+                     \x20 echo '{{\"key\":\"val\"}}' | dog format  # 从管道读取"
+                );
+            }
             let mut buffer = String::new();
             io::stdin().read_to_string(&mut buffer)?;
             Ok(buffer)
@@ -88,6 +97,15 @@ pub fn read_input_bytes(input: &Option<String>) -> anyhow::Result<Vec<u8>> {
             }
         }
         None => {
+            if io::stdin().is_terminal() {
+                anyhow::bail!(
+                    "没有提供输入内容。请提供文件路径或文本作为参数，或通过管道传入数据。\n\
+                     示例:\n\
+                     \x20 dog hash md5 data.txt      # 计算文件哈希\n\
+                     \x20 dog hash md5 'hello'       # 计算文本哈希\n\
+                     \x20 echo 'hello' | dog hash md5 # 从管道读取"
+                );
+            }
             let mut buffer = Vec::new();
             io::stdin().read_to_end(&mut buffer)?;
             Ok(buffer)

@@ -21,6 +21,7 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     /// 数据格式化 (JSON/YAML/TOML)
+    #[command(alias = "fmt")]
     Format(cli::FormatArgs),
     /// 编码转换 (Base64/URL)
     Encode(cli::EncodeArgs),

@@ -54,17 +54,23 @@ impl App {
         }
     }
 
-    /// 菜单项上移
+    /// 菜单项上移（循环）
     pub fn menu_up(&mut self) {
         if self.menu_index > 0 {
             self.menu_index -= 1;
+        } else {
+            // 在顶部时循环到底部
+            self.menu_index = Module::all().len() - 1;
         }
     }
 
-    /// 菜单项下移
+    /// 菜单项下移（循环）
     pub fn menu_down(&mut self) {
         if self.menu_index < Module::all().len() - 1 {
             self.menu_index += 1;
+        } else {
+            // 在底部时循环到顶部
+            self.menu_index = 0;
         }
     }
 

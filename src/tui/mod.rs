@@ -4,7 +4,7 @@ mod app;
 mod ui;
 
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyModifiers},
+    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind, KeyModifiers},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
@@ -46,6 +46,11 @@ fn run_app<B: ratatui::backend::Backend>(
         terminal.draw(|f| ui::render(f, app))?;
 
         if let Event::Key(key) = event::read()? {
+            // 只处理按键按下事件，忽略释放事件
+            if key.kind != KeyEventKind::Press {
+                continue;
+            }
+
             match app.selected_module {
                 // 菜单模式
                 None => match (key.modifiers, key.code) {

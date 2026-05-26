@@ -3,6 +3,36 @@
 use std::io::{self, Read};
 use std::path::Path;
 
+/// 输入来源类型
+pub enum InputSource {
+    /// 文件输入
+    File,
+    /// 文本输入
+    Text,
+    /// 标准输入
+    Stdin,
+}
+
+/// 判断输入来源类型（不读取内容）
+///
+/// 与 `read_input` 使用相同的判断逻辑：
+/// 1. 如果提供了输入参数且是有效文件路径，则为文件输入
+/// 2. 如果提供了输入参数但不是文件路径，则为文本输入
+/// 3. 如果没有提供输入参数，则为标准输入
+pub fn classify_input(input: &Option<String>) -> InputSource {
+    match input {
+        Some(content) => {
+            let path = Path::new(content);
+            if path.exists() && path.is_file() {
+                InputSource::File
+            } else {
+                InputSource::Text
+            }
+        }
+        None => InputSource::Stdin,
+    }
+}
+
 /// 从文件、文本或标准输入读取文本内容
 ///
 /// 优先级：
@@ -144,5 +174,34 @@ mod tests {
         // URL 形式的文本（不是文件路径）
         let result = read_input_bytes(&Some("www.yxynb.com".to_string())).unwrap();
         assert_eq!(result, b"www.yxynb.com");
+    }
+
+    // classify_input 测试
+    #[test]
+    fn test_classify_input_file() {
+        let mut temp_file = NamedTempFile::new().unwrap();
+        write!(temp_file, "content").unwrap();
+        let path = temp_file.path().to_str().unwrap().to_string();
+        assert!(matches!(classify_input(&Some(path)), InputSource::File));
+    }
+
+    #[test]
+    fn test_classify_input_text() {
+        let result = classify_input(&Some("hello world".to_string()));
+        assert!(matches!(result, InputSource::Text));
+    }
+
+    #[test]
+    fn test_classify_input_stdin() {
+        assert!(matches!(classify_input(&None), InputSource::Stdin));
+    }
+
+    #[test]
+    fn test_classify_input_url_like_is_text() {
+        // URL 形式的字符串不是文件路径
+        assert!(matches!(
+            classify_input(&Some("www.example.com".to_string())),
+            InputSource::Text
+        ));
     }
 }

@@ -28,8 +28,14 @@ fn show_current_time(timezone: &str, format: &str) -> anyhow::Result<()> {
         .map_err(|e: String| anyhow::anyhow!("{}", e))?;
     let now = Utc::now().with_timezone(&tz);
 
-    let output = format_datetime(&now, format);
-    println!("{}", output);
+    // 输出三个值：时间字符串、10位时间戳、13位时间戳
+    let datetime_str = format_datetime(&now, format);
+    let timestamp_sec = now.timestamp();
+    let timestamp_millis = now.timestamp_millis();
+
+    println!("时间: {}", datetime_str);
+    println!("时间戳(秒): {}", timestamp_sec);
+    println!("时间戳(毫秒): {}", timestamp_millis);
 
     Ok(())
 }
@@ -122,5 +128,19 @@ mod tests {
         assert_eq!(dt.year(), 2024);
         assert_eq!(dt.month(), 1);
         assert_eq!(dt.day(), 1);
+    }
+
+    #[test]
+    fn test_convert_10digit_timestamp() {
+        // 10位时间戳测试
+        let result = convert_timestamp("1609459200", "UTC", "default");
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_convert_13digit_timestamp() {
+        // 13位时间戳测试
+        let result = convert_timestamp("1609459200000", "UTC", "default");
+        assert!(result.is_ok());
     }
 }
